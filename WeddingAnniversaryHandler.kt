@@ -1,4 +1,6 @@
 import java.text.SimpleDateFormat
+import java.time.OffsetDateTime
+import java.time.temporal.ChronoUnit
 import java.util.*
 
 object WeddingAnniversaryHandler {
@@ -6,23 +8,28 @@ object WeddingAnniversaryHandler {
         currentDate: String,
         records: List<CoupleRecord>
     ): List<WeddingAnniversaryReminderRecord> {
-        val weddingAnniversaryReminderRecords = listOf<WeddingAnniversaryReminderRecord>()
+        val weddingAnniversaryReminderRecords = mutableListOf<WeddingAnniversaryReminderRecord>()
         val parsedCurrentDate = parseIsoDateIfValid(currentDate) ?: throw Exception("currentDate not valid")
 
         for (record in records) {
             val parsedWeddingDate = parseIsoDateIfValid(record.weddingDate) ?: continue
             val nextAnniversaryDate = getNextAnniversaryDate(parsedCurrentDate, parsedWeddingDate)
             val anniversaryNumber = nextAnniversaryDate.year - parsedWeddingDate.year
+            if (shouldSendReminder(parsedCurrentDate, nextAnniversaryDate, anniversaryNumber)) {
+                weddingAnniversaryReminderRecords.add(WeddingAnniversaryReminderRecord(
+                    record.id,
+                    nextAnniversaryDate.toInstant().toString()
+                ))
+            }
         }
 
         return weddingAnniversaryReminderRecords
     }
 
-    private fun parseIsoDateIfValid(isoDate: String?): Date? {
+    private fun parseIsoDateIfValid(isoDate: String?): OffsetDateTime? {
         isoDate?.let {
             return try {
-                val format = SimpleDateFormat("yyyy-MM-dd")
-                format.parse(isoDate)
+                OffsetDateTime.parse(it)
             } catch (e: Exception) {
                 null
             }
@@ -31,18 +38,21 @@ object WeddingAnniversaryHandler {
         return null
     }
 
-    private fun getNextAnniversaryDate(currentDate: Date, weddingDate: Date): Date {
-        val nextAnniversaryDate = weddingDate
-        nextAnniversaryDate.year = currentDate.year
-        if (nextAnniversaryDate.before(currentDate)) {
-            nextAnniversaryDate.year = currentDate.year + 1
+    private fun getNextAnniversaryDate(currentDate: OffsetDateTime, weddingDate: OffsetDateTime): OffsetDateTime {
+        val nextAnniversaryDate = weddingDate.plusYears((currentDate.year - weddingDate.year).toLong())
+        if (nextAnniversaryDate < currentDate) {
+            nextAnniversaryDate.plusYears(1)
         }
 
         return nextAnniversaryDate
     }
 
-    private fun shouldSendReminder(currentDate: Date, nextAnniversaryDate:Date, anniversaryNumber: Int): Boolean {
-        return false
+    private fun shouldSendReminder(currentDate: OffsetDateTime,
+                                   nextAnniversaryDate: OffsetDateTime,
+                                   anniversaryNumber: Int): Boolean {
+        val weeksLeft = ChronoUnit.DAYS.between(nextAnniversaryDate.toInstant(), currentDate.toInstant()) / 7
+        val weeksBeforeReminder = getNumberOfWeeksBeforeReminder(anniversaryNumber)
+        return weeksLeft <= weeksBeforeReminder
     }
 
     private fun getNumberOfWeeksBeforeReminder(anniversaryNumber: Int): Int {
