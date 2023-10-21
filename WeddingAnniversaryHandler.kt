@@ -50,7 +50,7 @@ class WeddingAnniversaryHandler(private val currentDate: String,
                                    nextAnniversaryDate: OffsetDateTime,
                                    anniversaryNumber: Int): Boolean {
         val weeksLeft = ChronoUnit.HOURS.between(currentDate.toInstant(), nextAnniversaryDate.toInstant()) /
-            (24.0 * 7.0)
+            HOURS_IN_A_WEEK
         val weeksBeforeReminder = getNumberOfWeeksBeforeReminder(anniversaryNumber)
         return weeksLeft <= weeksBeforeReminder
     }

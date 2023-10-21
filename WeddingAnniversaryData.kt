@@ -21,5 +21,7 @@ data class WeddingAnniversaryReminderRecord(
     val nextAnniversary: String
 )
 
+const val HOURS_IN_A_WEEK = 24.0 * 7.0
+
 
 
