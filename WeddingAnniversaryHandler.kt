@@ -1,11 +1,10 @@
-import java.text.SimpleDateFormat
 import java.time.OffsetDateTime
 import java.time.temporal.ChronoUnit
-import java.util.*
 
-object WeddingAnniversaryHandler {
+class WeddingAnniversaryHandler(private val currentDate: String,
+                                private val config: AnniversaryConfig) {
+
     fun generateReminderRecords(
-        currentDate: String,
         records: List<CoupleRecord>
     ): List<WeddingAnniversaryReminderRecord> {
         val weddingAnniversaryReminderRecords = mutableListOf<WeddingAnniversaryReminderRecord>()
@@ -50,15 +49,17 @@ object WeddingAnniversaryHandler {
     private fun shouldSendReminder(currentDate: OffsetDateTime,
                                    nextAnniversaryDate: OffsetDateTime,
                                    anniversaryNumber: Int): Boolean {
-        val weeksLeft = ChronoUnit.DAYS.between(nextAnniversaryDate.toInstant(), currentDate.toInstant()) / 7
+        val weeksLeft = ChronoUnit.HOURS.between(currentDate.toInstant(), nextAnniversaryDate.toInstant()) /
+            (24.0 * 7.0)
         val weeksBeforeReminder = getNumberOfWeeksBeforeReminder(anniversaryNumber)
         return weeksLeft <= weeksBeforeReminder
     }
 
     private fun getNumberOfWeeksBeforeReminder(anniversaryNumber: Int): Int {
-        for (key in reminderWeeksSpecialConfig.keys.sortedDescending()) {
-            if (anniversaryNumber % key == 0) return reminderWeeksSpecialConfig[key]!!
+        val descendingAnniversaryConfig = config.specialAnniversaryConfig.sortedByDescending { it.anniversary }
+        for (config in descendingAnniversaryConfig) {
+            if (anniversaryNumber % config.anniversary == 0) return config.reminderWeeks
         }
-        return NORMAL_REMINDER_WEEKS
+        return config.defaultReminderWeeks
     }
 }
