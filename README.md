@@ -1,4 +1,4 @@
-# wedding_anniversary_reminder
+# wedding-anniversary-reminder
 
 This project requires JDK 16
 
