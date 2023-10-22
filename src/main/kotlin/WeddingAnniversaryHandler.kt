@@ -1,12 +1,9 @@
 import java.time.OffsetDateTime
 import java.time.temporal.ChronoUnit
 
-class WeddingAnniversaryHandler(private val currentDate: String,
-                                private val config: AnniversaryConfig) {
+class WeddingAnniversaryHandler(private val currentDate: String, private val config: AnniversaryConfig) {
 
-  fun generateReminderRecords(
-    records: List<CoupleRecord>
-  ): List<WeddingAnniversaryReminderRecord> {
+  fun generateReminderRecords(records: List<CoupleRecord>): List<WeddingAnniversaryReminderRecord> {
     val weddingAnniversaryReminderRecords = mutableListOf<WeddingAnniversaryReminderRecord>()
     val parsedCurrentDate = parseIsoDateIfValid(currentDate) ?: throw Exception("currentDate not valid")
 
