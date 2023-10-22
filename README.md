@@ -23,7 +23,7 @@ val reminderRecord = weddingAnniversaryHandler.generateReminderRecords(listOf(co
 ```
 
 
-To build the project, run the following in your terminal:
+Using Intellij IDEA is recommended for easily building the project. However, it can also be built by running the following in your terminal:
 `./gradlew build`
 
 Tests can be found in `src/test/kotlin/WeddingAnniversaryHandlerTest.kt`
